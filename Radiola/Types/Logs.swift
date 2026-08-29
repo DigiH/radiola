@@ -10,13 +10,25 @@ import Foundation
 /* ****************************************
  *
  * ****************************************/
-fileprivate var logsData: [String] = []
+actor LogStorage {
+    static let shared = LogStorage()
+
+    private var logs: [String] = []
+
+    func append(_ line: String) {
+        logs.append(line)
+    }
+
+    func getAll() -> [String] {
+        return logs
+    }
+}
 
 /* ****************************************
  *
  * ****************************************/
-func allLogs() -> [String] {
-    return logsData
+func allLogs() async -> [String] {
+    return await LogStorage.shared.getAll()
 }
 
 /* ****************************************
@@ -38,7 +50,9 @@ fileprivate func logMsg(prefix: String, _ items: Any..., separator: String = " "
     let payload = items.map { "\($0)" }.joined(separator: separator)
 
     let s = "\(prefix): \(timestamp) [\(threadId)] \(payload)"
-    logsData.append(s)
+    Task {
+        await LogStorage.shared.append(s)
+    }
     print(s)
 }
 

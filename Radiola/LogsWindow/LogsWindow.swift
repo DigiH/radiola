@@ -33,7 +33,10 @@ class LogsWindow: NSWindowController, NSWindowDelegate {
         logsView.isSelectable = true
         logsView.textContainerInset = NSSize(width: 8, height: 8)
         logsView.font = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        logsView.string = allLogs().joined(separator: "\n") + "\n"
+        Task { @MainActor in
+            let logs = await allLogs()
+            logsView.string = logs.joined(separator: "\n") + "\n"
+        }
 
         copyButton.title = NSLocalizedString("Copy to clipboard", comment: "Button label")
         copyButton.target = self
